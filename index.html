@@ -29,9 +29,20 @@
             <button class="tab-btn" data-filter="ressource">School-Ressources</button>
         </div>
 
-        <input type="text" id="search-input" placeholder="🔍 Look for a Subject or Name..."
+        <input type="text" id="search-input" placeholder="🔍 Look for a Subject or Name...">
 
         <form id="entry-form">
+            <div class="type-selector">
+                <label>
+                    <input type="radio" name="entry-type" value="homework" checked>
+                    Homework
+                </label>
+                <label>
+                    <input type="radio" name="entry-type" value="resource">
+                    School Resource
+                </label>
+            </div>
+            
             <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
             <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
             <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
