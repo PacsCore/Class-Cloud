@@ -66,6 +66,7 @@ const hwInput = document.getElementById("hw-input");
 const fileInput = document.getElementById("file-input");
 const submitBtn = document.getElementById("submit-btn");
 const cancelEditBtn = document.getElementById("cancel-edit-btn");
+const deadlineInput = document.getElementById("deadline-input");
 
 let editingId = null;
 
@@ -114,6 +115,7 @@ form.addEventListener("submit", async (e) => {
         subject: subjectInput.value,
         text: hwInput.value,
         type: selectedType
+        deadline: deadlineInput.value || null
       };
       if (uploadedFiles.length > 0) {
         updateData.files = uploadedFiles;
@@ -125,6 +127,7 @@ form.addEventListener("submit", async (e) => {
         subject: subjectInput.value,
         text: hwInput.value,
         type: selectedType,
+        deadline: deadlineInput.value || null
         files: uploadedFiles,
         createdAt: serverTimestamp()
       });
