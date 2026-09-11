@@ -135,7 +135,7 @@ form.addEventListener("submit", async (e) => {
     }
   } catch (err) {
     console.error(err);
-    alert("Couldn't save homework. Please try again.");
+    alert('Couldn´t save homework: ${err.message}');
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = editingId ? "Update Homework" : "Add Homework";
