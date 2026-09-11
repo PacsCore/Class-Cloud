@@ -114,7 +114,7 @@ form.addEventListener("submit", async (e) => {
       const updateData = {
         subject: subjectInput.value,
         text: hwInput.value,
-        type: selectedType
+        type: selectedType,
         deadline: deadlineInput.value || null
       };
       if (uploadedFiles.length > 0) {
@@ -127,7 +127,7 @@ form.addEventListener("submit", async (e) => {
         subject: subjectInput.value,
         text: hwInput.value,
         type: selectedType,
-        deadline: deadlineInput.value || null
+        deadline: deadlineInput.value || null,
         files: uploadedFiles,
         createdAt: serverTimestamp()
       });
@@ -218,12 +218,17 @@ function renderList() {
       ? `<span class="type-badge resource">📁 Ressource</span>`
       : `<span class="type-badge homework">📝 Homework</span>`;
 
+    const deadlineHtml = data.deadline
+      ? `<span class="deadline-badge ${new Date(data.deadline) < new Date() ? "overdue" : ""}">📅 ${new Date(data.deadline).toLocaleDateString("de-AT")}</span>`
+      : "";
+
     const li = document.createElement("li");
     li.className = "hw-item";
     li.innerHTML = `
       <div class="hw-item-top">
         <div class="hw-item-content">
           ${typeBadge}
+          ${deadlineHtml}
           <span class="subject">${escapeHtml(data.subject)}</span>
           <span>${escapeHtml(data.text)}</span>
           <span class="date">${data.createdAt ? data.createdAt.toDate().toLocaleString("de-AT") : "just now"}</span>
@@ -253,6 +258,7 @@ function renderList() {
 
       subjectInput.value = data.subject;
       hwInput.value = data.text;
+      deadlineInput.value = data.deadline || "";
       document.querySelector(`input[name="entry-type"][value="${data.type || "homework"}"]`).checked = true;
 
       editingId = id;
