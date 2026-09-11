@@ -32,23 +32,20 @@
         <input type="text" id="search-input" placeholder="🔍 Look for a Subject or Name...">
 
         <form id="entry-form">
-            <div class="type-selector">
-                <label>
-                    <input type="radio" name="entry-type" value="homework" checked>
-                    Homework
-                </label>
-                <label>
-                    <input type="radio" name="entry-type" value="resource">
-                    School Resource
-                </label>
-            </div>
+    <div class="type-selector">
+        <input type="radio" id="type-homework" name="entry-type" value="homework" checked>
+        <label for="type-homework">📝 Homework</label>
+        <input type="radio" id="type-resource" name="entry-type" value="resource">
+        <label for="type-resource">📁 Resource</label>
+    </div>
 
-            <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
-            <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
-            <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
-            <button type="submit" id="submit-btn">Add Homework</button>
-            <button type="button" id="cancel-edit-btn" class="cancel-btn hidden">Cancel Edit</button>
-        </form>
+    <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
+    <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
+    <input type="date" id="deadline-input">
+    <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
+    <button type="submit" id="submit-btn">Add Homework</button>
+    <button type="button" id="cancel-edit-btn" class="cancel-btn hidden">Cancel Edit</button>
+</form>
 
         <ul id="hw-list"></ul>
     </div>
