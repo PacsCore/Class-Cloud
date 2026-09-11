@@ -67,7 +67,6 @@ const fileInput = document.getElementById("file-input");
 const submitBtn = document.getElementById("submit-btn");
 const cancelEditBtn = document.getElementById("cancel-edit-btn");
 
-// editing
 let editingId = null;
 
 function escapeHtml(str) {
@@ -82,7 +81,6 @@ function isImageFile(file) {
   return /\.(jpe?g|png|gif|webp)$/i.test(file.name || file.url || "");
 }
 
-// --- upload one file to Cloudinary, returns {url, name} ---
 async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -107,15 +105,16 @@ form.addEventListener("submit", async (e) => {
   submitBtn.textContent = fileInput.files.length ? "Uploading..." : "Saving...";
 
   try {
+    const selectedType = document.querySelector('input[name="entry-type"]:checked').value;
     const files = Array.from(fileInput.files);
     const uploadedFiles = await Promise.all(files.map(uploadToCloudinary));
 
     if (editingId) {
       const updateData = {
         subject: subjectInput.value,
-        text: hwInput.value
+        text: hwInput.value,
+        type: selectedType
       };
-      // only overwrite files if the user picked new ones
       if (uploadedFiles.length > 0) {
         updateData.files = uploadedFiles;
       }
@@ -125,6 +124,7 @@ form.addEventListener("submit", async (e) => {
       await addDoc(collection(db, "homework"), {
         subject: subjectInput.value,
         text: hwInput.value,
+        type: selectedType,
         files: uploadedFiles,
         createdAt: serverTimestamp()
       });
@@ -148,17 +148,58 @@ function exitEditMode() {
 
 cancelEditBtn.addEventListener("click", exitEditMode);
 
+// --- tabs ---
+const tabButtons = document.querySelectorAll(".tab-btn");
+let currentFilter = "homework";
+
+tabButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    tabButtons.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.getAttribute("data-filter");
+    renderList();
+  });
+});
+
+// --- search ---
+const searchInput = document.getElementById("search-input");
+let searchTerm = "";
+
+searchInput.addEventListener("input", () => {
+  searchTerm = searchInput.value.toLowerCase().trim();
+  renderList();
+});
+
+// --- live data ---
 const hwList = document.getElementById("hw-list");
 const q = query(collection(db, "homework"), orderBy("createdAt", "desc"));
 
+let allEntries = [];
+
 onSnapshot(q, (snapshot) => {
+  allEntries = snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
+  renderList();
+});
+
+function renderList() {
   hwList.innerHTML = "";
 
-  snapshot.forEach((docSnap) => {
-    const data = docSnap.data();
-    const id = docSnap.id;
+  const filtered = allEntries.filter((entry) => {
+    const matchesType = (entry.type || "homework") === currentFilter;
+    const matchesSearch =
+      searchTerm === "" ||
+      entry.subject.toLowerCase().includes(searchTerm) ||
+      entry.text.toLowerCase().includes(searchTerm);
+    return matchesType && matchesSearch;
+  });
+
+  filtered.forEach((data) => {
+    const id = data.id;
     const files = data.files || [];
-    // build the attachments HTML: images as thumbnails, other files as links
+
     const attachmentsHtml = files.map((file) => {
       const name = escapeHtml(file.name || "file");
       const url = (file.url || "").startsWith("https://") ? escapeHtml(file.url) : "";
@@ -170,11 +211,16 @@ onSnapshot(q, (snapshot) => {
       return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="file-link">📄 ${name}</a>`;
     }).join("");
 
+    const typeBadge = data.type === "resource"
+      ? `<span class="type-badge resource">📁 Ressource</span>`
+      : `<span class="type-badge homework">📝 Hausübung</span>`;
+
     const li = document.createElement("li");
     li.className = "hw-item";
     li.innerHTML = `
       <div class="hw-item-top">
         <div class="hw-item-content">
+          ${typeBadge}
           <span class="subject">${escapeHtml(data.subject)}</span>
           <span>${escapeHtml(data.text)}</span>
           <span class="date">${data.createdAt ? data.createdAt.toDate().toLocaleString("de-AT") : "just now"}</span>
@@ -190,7 +236,6 @@ onSnapshot(q, (snapshot) => {
     hwList.appendChild(li);
   });
 
-  // delete buttons
   document.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-id");
@@ -198,15 +243,14 @@ onSnapshot(q, (snapshot) => {
     });
   });
 
-  // edit buttons
   document.querySelectorAll(".edit-btn").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-id");
-      const docSnapshot = snapshot.docs.find((d) => d.id === id);
-      const data = docSnapshot.data();
+      const data = allEntries.find((e) => e.id === id);
 
       subjectInput.value = data.subject;
       hwInput.value = data.text;
+      document.querySelector(`input[name="entry-type"][value="${data.type || "homework"}"]`).checked = true;
 
       editingId = id;
       submitBtn.textContent = "Update Homework";
@@ -215,4 +259,4 @@ onSnapshot(q, (snapshot) => {
       form.scrollIntoView({ behavior: "smooth" });
     });
   });
-});
+}
