@@ -268,6 +268,65 @@ header h1{
     backdrop-filter: blur(10px);
 }
 
-#seach-input::placeholder {
+#search-input::placeholder {
     color: #777;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #1e3a5f;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.type-selector {
+    display: flex;
+    gap: 16px;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.type-selector label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.type-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.type-badge.homework {
+    background: #e0e7ff;
+    color: #1e3a5f;
+}
+
+.type-badge.resource {
+    background: #d1fae5;
+    color: #059669;
 }
