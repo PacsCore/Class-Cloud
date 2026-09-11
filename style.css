@@ -330,3 +330,13 @@ header h1{
     background: #d1fae5;
     color: #059669;
 }
+
+#entry-form input, #entry-form textarea, #entry-form button{
+    width: 100%;
+}
+
+.type-selector input[type="radio"] {
+    width: auto;
+    padding: 0;
+    border: none;
+}

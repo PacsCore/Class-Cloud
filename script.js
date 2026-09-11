@@ -213,7 +213,7 @@ function renderList() {
 
     const typeBadge = data.type === "resource"
       ? `<span class="type-badge resource">📁 Ressource</span>`
-      : `<span class="type-badge homework">📝 Hausübung</span>`;
+      : `<span class="type-badge homework">📝 Homework</span>`;
 
     const li = document.createElement("li");
     li.className = "hw-item";
