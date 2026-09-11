@@ -256,3 +256,18 @@ header h1{
 .file-link:hover {
     background: #cbd5e1;
 }
+
+#search-input {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+#seach-input::placeholder {
+    color: #777;
+}
