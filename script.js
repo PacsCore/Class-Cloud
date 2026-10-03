@@ -27,11 +27,10 @@ const firebaseConfig = {
 const CLOUDINARY_CLOUD_NAME = "t1npa7rj";
 const CLOUDINARY_UPLOAD_PRESET = "hue_tracker";
 
-// start Firebase & Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// password
+// --- password ---
 const CORRECT_PASSWORD = "8B";
 
 const lockScreen = document.getElementById("lock-screen");
@@ -60,6 +59,7 @@ if (sessionStorage.getItem("unlocked") === "true") {
   appDiv.classList.remove("hidden");
 }
 
+// --- form elements ---
 const form = document.getElementById("entry-form");
 const subjectInput = document.getElementById("subject-input");
 const hwInput = document.getElementById("hw-input");
@@ -67,8 +67,34 @@ const fileInput = document.getElementById("file-input");
 const submitBtn = document.getElementById("submit-btn");
 const cancelEditBtn = document.getElementById("cancel-edit-btn");
 const deadlineInput = document.getElementById("deadline-input");
+const formTitle = document.getElementById("form-title");
+
+const fabBtn = document.getElementById("fab-btn");
+const formOverlay = document.getElementById("form-overlay");
+const closeFormBtn = document.getElementById("close-form-btn");
 
 let editingId = null;
+
+function openForm() {
+  formOverlay.classList.remove("hidden");
+}
+
+function closeForm() {
+  formOverlay.classList.add("hidden");
+  exitEditMode();
+}
+
+fabBtn.addEventListener("click", () => {
+  formTitle.textContent = "New Entry";
+  submitBtn.textContent = "Add Entry";
+  openForm();
+});
+
+closeFormBtn.addEventListener("click", closeForm);
+
+formOverlay.addEventListener("click", (e) => {
+  if (e.target === formOverlay) closeForm();
+});
 
 function escapeHtml(str) {
   return String(str)
@@ -106,7 +132,7 @@ form.addEventListener("submit", async (e) => {
   submitBtn.textContent = fileInput.files.length ? "Uploading..." : "Saving...";
 
   try {
-    const selectedType = currentFilter;
+    const selectedType = document.querySelector('input[name="entry-type"]:checked').value;
     const files = Array.from(fileInput.files);
     const uploadedFiles = await Promise.all(files.map(uploadToCloudinary));
 
@@ -121,7 +147,6 @@ form.addEventListener("submit", async (e) => {
         updateData.files = uploadedFiles;
       }
       await updateDoc(doc(db, "homework", editingId), updateData);
-      exitEditMode();
     } else {
       await addDoc(collection(db, "homework"), {
         subject: subjectInput.value,
@@ -131,25 +156,26 @@ form.addEventListener("submit", async (e) => {
         files: uploadedFiles,
         createdAt: serverTimestamp()
       });
-      form.reset();
     }
+
+    closeForm();
   } catch (err) {
     console.error(err);
-    alert(`Couldn't save homework: ${err.message}`);
+    alert(`Couldn't save entry: ${err.message}`);
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = editingId ? "Update Homework" : "Add Homework";
+    submitBtn.textContent = editingId ? "Update Entry" : "Add Entry";
   }
 });
 
 function exitEditMode() {
   editingId = null;
-  submitBtn.textContent = "Add Homework";
+  submitBtn.textContent = "Add Entry";
   cancelEditBtn.classList.add("hidden");
   form.reset();
 }
 
-cancelEditBtn.addEventListener("click", exitEditMode);
+cancelEditBtn.addEventListener("click", closeForm);
 
 // --- tabs ---
 const tabButtons = document.querySelectorAll(".tab-btn");
@@ -191,7 +217,7 @@ function openDetail(data) {
   }).join("");
 
   const typeBadge = data.type === "resource"
-    ? `<span class="type-badge resource">📁 Ressource</span>`
+    ? `<span class="type-badge resource">📁 Resource</span>`
     : `<span class="type-badge homework">📝 Homework</span>`;
 
   const deadlineHtml = data.deadline
@@ -246,6 +272,14 @@ function renderList() {
     return matchesType && matchesSearch;
   });
 
+  // sort by deadline ascending (soonest first); entries without a deadline go last
+  filtered.sort((a, b) => {
+    if (!a.deadline && !b.deadline) return 0;
+    if (!a.deadline) return 1;
+    if (!b.deadline) return -1;
+    return new Date(a.deadline) - new Date(b.deadline);
+  });
+
   filtered.forEach((data) => {
     const id = data.id;
     const files = data.files || [];
@@ -260,7 +294,7 @@ function renderList() {
     }).join("");
 
     const typeBadge = data.type === "resource"
-      ? `<span class="type-badge resource">📁 Ressource</span>`
+      ? `<span class="type-badge resource">📁 Resource</span>`
       : `<span class="type-badge homework">📝 Homework</span>`;
 
     const deadlineHtml = data.deadline
@@ -279,8 +313,8 @@ function renderList() {
           <span class="date">${data.createdAt ? data.createdAt.toDate().toLocaleString("de-AT") : "just now"}</span>
         </div>
         <div class="hw-item-actions">
-          <button class="edit-btn" data-id="${id}" aria-label="Edit homework">✏️</button>
-          <button class="delete-btn" data-id="${id}" aria-label="Delete homework">🗑️</button>
+          <button class="edit-btn" data-id="${id}" aria-label="Edit">✏️</button>
+          <button class="delete-btn" data-id="${id}" aria-label="Delete">🗑️</button>
         </div>
       </div>
       ${attachmentsHtml ? `<div class="file-attachments">${attachmentsHtml}</div>` : ""}
@@ -308,12 +342,14 @@ function renderList() {
       subjectInput.value = data.subject;
       hwInput.value = data.text;
       deadlineInput.value = data.deadline || "";
+      document.querySelector(`input[name="entry-type"][value="${data.type || "homework"}"]`).checked = true;
 
       editingId = id;
-      submitBtn.textContent = "Update Homework";
+      formTitle.textContent = "Edit Entry";
+      submitBtn.textContent = "Update Entry";
       cancelEditBtn.classList.remove("hidden");
 
-      form.scrollIntoView({ behavior: "smooth" });
+      openForm();
     });
   });
 }
