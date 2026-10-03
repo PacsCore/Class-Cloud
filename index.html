@@ -32,16 +32,31 @@
 
         <input type="text" id="search-input" placeholder="🔍 Look for a Subject or Name...">
 
-        <form id="entry-form">
-            <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
-            <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
-            <input type="date" id="deadline-input">
-            <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
-            <button type="submit" id="submit-btn">Add Homework</button>
-            <button type="button" id="cancel-edit-btn" class="cancel-btn hidden">Cancel Edit</button>
-        </form>
-
         <ul id="hw-list"></ul>
+
+        <button id="fab-btn" aria-label="Add entry">+</button>
+    </div>
+
+    <div id="form-overlay" class="overlay hidden">
+        <div class="form-box">
+            <button id="close-form-btn" class="close-btn" aria-label="Close">✕</button>
+            <h2 id="form-title">New Entry</h2>
+            <form id="entry-form">
+                <div class="type-selector">
+                    <input type="radio" id="type-homework" name="entry-type" value="homework" checked>
+                    <label for="type-homework">📝 Homework</label>
+                    <input type="radio" id="type-resource" name="entry-type" value="resource">
+                    <label for="type-resource">📁 Resource</label>
+                </div>
+
+                <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
+                <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
+                <input type="date" id="deadline-input">
+                <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
+                <button type="submit" id="submit-btn">Add Entry</button>
+                <button type="button" id="cancel-edit-btn" class="cancel-btn hidden">Cancel Edit</button>
+            </form>
+        </div>
     </div>
 
     <div id="detail-modal" class="overlay hidden">
