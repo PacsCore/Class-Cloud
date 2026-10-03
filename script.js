@@ -1,4 +1,3 @@
-// import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
   getFirestore,
@@ -13,7 +12,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-// Firebase
+
 const firebaseConfig = {
   apiKey: "AIzaSyB-3-Piwnoda_cO0dzKhHt25OikGOXxzZk",
   authDomain: "klassen-hue-tracker.firebaseapp.com",
@@ -23,14 +22,20 @@ const firebaseConfig = {
   appId: "1:914966951850:web:a99a178f57a7f0d51b9dd3"
 };
 
-// Cloudinary
 const CLOUDINARY_CLOUD_NAME = "t1npa7rj";
 const CLOUDINARY_UPLOAD_PRESET = "hue_tracker";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- password ---
+function lockBodyScroll() {
+  document.body.style.overflow = "hidden";
+}
+
+function unlockBodyScroll() {
+  document.body.style.overflow = "";
+}
+
 const CORRECT_PASSWORD = "8B";
 
 const lockScreen = document.getElementById("lock-screen");
@@ -59,7 +64,6 @@ if (sessionStorage.getItem("unlocked") === "true") {
   appDiv.classList.remove("hidden");
 }
 
-// --- form elements ---
 const form = document.getElementById("entry-form");
 const subjectInput = document.getElementById("subject-input");
 const hwInput = document.getElementById("hw-input");
@@ -77,10 +81,12 @@ let editingId = null;
 
 function openForm() {
   formOverlay.classList.remove("hidden");
+  lockBodyScroll();
 }
 
 function closeForm() {
   formOverlay.classList.add("hidden");
+  unlockBodyScroll();
   exitEditMode();
 }
 
@@ -177,7 +183,6 @@ function exitEditMode() {
 
 cancelEditBtn.addEventListener("click", closeForm);
 
-// --- tabs ---
 const tabButtons = document.querySelectorAll(".tab-btn");
 let currentFilter = "homework";
 
@@ -190,7 +195,6 @@ tabButtons.forEach((btn) => {
   });
 });
 
-// --- search ---
 const searchInput = document.getElementById("search-input");
 let searchTerm = "";
 
@@ -199,7 +203,6 @@ searchInput.addEventListener("input", () => {
   renderList();
 });
 
-// --- detail modal ---
 const detailModal = document.getElementById("detail-modal");
 const detailContent = document.getElementById("detail-content");
 const closeDetailBtn = document.getElementById("close-detail-btn");
@@ -234,19 +237,21 @@ function openDetail(data) {
   `;
 
   detailModal.classList.remove("hidden");
+  lockBodyScroll();
 }
 
 closeDetailBtn.addEventListener("click", () => {
   detailModal.classList.add("hidden");
+  unlockBodyScroll();
 });
 
 detailModal.addEventListener("click", (e) => {
   if (e.target === detailModal) {
     detailModal.classList.add("hidden");
+    unlockBodyScroll();
   }
 });
 
-// --- live data ---
 const hwList = document.getElementById("hw-list");
 const q = query(collection(db, "homework"), orderBy("createdAt", "desc"));
 
@@ -272,7 +277,6 @@ function renderList() {
     return matchesType && matchesSearch;
   });
 
-  // sort by deadline ascending (soonest first); entries without a deadline go last
   filtered.sort((a, b) => {
     if (!a.deadline && !b.deadline) return 0;
     if (!a.deadline) return 1;

@@ -6,7 +6,8 @@
 }
 
 body {
-    background: #f0f2f5;
+    background: linear-gradient(180deg, #e9f0fb 0%, #f0f2f5 40%, #f0f2f5 100%);
+    background-attachment: fixed;
     min-height: 100vh;
 }
 
@@ -22,7 +23,7 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 100;
-    padding: 16px;
+    padding: 40px 16px;
 }
 
 .lock-box, .form-box, .detail-box {
@@ -444,6 +445,8 @@ header h1 {
     line-height: 1.6;
     margin-bottom: 16px;
     white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .detail-attachments {
