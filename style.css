@@ -493,4 +493,29 @@ header h1 {
     .hw-item {
         height: 100%;
     }
+
+    .subject-header {
+        grid-column: 1 / -1;
+    }
+}
+
+#subject-filter {
+    width: 100%;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    border: none;
+    border-radius: 24px;
+    font-size: 0.9rem;
+    background: white;
+    color: #1c1e21;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.subject-header {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #65676b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 10px 4px 2px;
 }
