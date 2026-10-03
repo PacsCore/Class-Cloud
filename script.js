@@ -106,7 +106,7 @@ form.addEventListener("submit", async (e) => {
   submitBtn.textContent = fileInput.files.length ? "Uploading..." : "Saving...";
 
   try {
-    const selectedType = document.querySelector('input[name="entry-type"]:checked').value;
+    const selectedType = currentFilter;
     const files = Array.from(fileInput.files);
     const uploadedFiles = await Promise.all(files.map(uploadToCloudinary));
 
@@ -135,7 +135,7 @@ form.addEventListener("submit", async (e) => {
     }
   } catch (err) {
     console.error(err);
-    alert('Couldn´t save homework: ${err.message}');
+    alert(`Couldn't save homework: ${err.message}`);
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = editingId ? "Update Homework" : "Add Homework";
@@ -173,6 +173,53 @@ searchInput.addEventListener("input", () => {
   renderList();
 });
 
+// --- detail modal ---
+const detailModal = document.getElementById("detail-modal");
+const detailContent = document.getElementById("detail-content");
+const closeDetailBtn = document.getElementById("close-detail-btn");
+
+function openDetail(data) {
+  const files = data.files || [];
+
+  const attachmentsHtml = files.map((file) => {
+    const name = escapeHtml(file.name || "file");
+    const url = (file.url || "").startsWith("https://") ? escapeHtml(file.url) : "";
+    if (isImageFile(file)) {
+      return `<img src="${url}" alt="${name}">`;
+    }
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="file-link">📄 ${name}</a>`;
+  }).join("");
+
+  const typeBadge = data.type === "resource"
+    ? `<span class="type-badge resource">📁 Ressource</span>`
+    : `<span class="type-badge homework">📝 Homework</span>`;
+
+  const deadlineHtml = data.deadline
+    ? `<span class="deadline-badge ${new Date(data.deadline) < new Date() ? "overdue" : ""}">📅 ${new Date(data.deadline).toLocaleDateString("de-AT")}</span>`
+    : "";
+
+  detailContent.innerHTML = `
+    ${typeBadge}
+    ${deadlineHtml}
+    <h2>${escapeHtml(data.subject)}</h2>
+    <span class="detail-date">${data.createdAt ? data.createdAt.toDate().toLocaleString("de-AT") : "just now"}</span>
+    <p>${escapeHtml(data.text)}</p>
+    ${attachmentsHtml ? `<div class="detail-attachments">${attachmentsHtml}</div>` : ""}
+  `;
+
+  detailModal.classList.remove("hidden");
+}
+
+closeDetailBtn.addEventListener("click", () => {
+  detailModal.classList.add("hidden");
+});
+
+detailModal.addEventListener("click", (e) => {
+  if (e.target === detailModal) {
+    detailModal.classList.add("hidden");
+  }
+});
+
 // --- live data ---
 const hwList = document.getElementById("hw-list");
 const q = query(collection(db, "homework"), orderBy("createdAt", "desc"));
@@ -207,11 +254,9 @@ function renderList() {
       const name = escapeHtml(file.name || "file");
       const url = (file.url || "").startsWith("https://") ? escapeHtml(file.url) : "";
       if (isImageFile(file)) {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">
-          <img src="${url}" class="file-thumb" alt="${name}">
-        </a>`;
+        return `<img src="${url}" class="file-thumb" alt="${name}">`;
       }
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="file-link">📄 ${name}</a>`;
+      return `<span class="file-link">📄 ${name}</span>`;
     }).join("");
 
     const typeBadge = data.type === "resource"
@@ -241,25 +286,28 @@ function renderList() {
       ${attachmentsHtml ? `<div class="file-attachments">${attachmentsHtml}</div>` : ""}
     `;
 
+    li.addEventListener("click", () => openDetail(data));
+
     hwList.appendChild(li);
   });
 
   document.querySelectorAll(".delete-btn").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
       const id = btn.getAttribute("data-id");
       await deleteDoc(doc(db, "homework", id));
     });
   });
 
   document.querySelectorAll(".edit-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
       const id = btn.getAttribute("data-id");
-      const data = allEntries.find((e) => e.id === id);
+      const data = allEntries.find((entry) => entry.id === id);
 
       subjectInput.value = data.subject;
       hwInput.value = data.text;
       deadlineInput.value = data.deadline || "";
-      document.querySelector(`input[name="entry-type"][value="${data.type || "homework"}"]`).checked = true;
 
       editingId = id;
       submitBtn.textContent = "Update Homework";
