@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class-Cloud</title>
+    <title>Class Cloud</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-
     <div id="lock-screen" class="overlay">
       <div id="lock-box" class="lock-box">
-        <h1>🔒 Class-Cloud</h1>
+        <h1>🔒 Class Cloud</h1>
         <p>Enter your passcode to access the homework tracker</p>
         <input type="password" id="passcode-input" placeholder="Enter passcode my guy">
         <button id="unlock-btn">Unlock</button>
@@ -21,7 +21,8 @@
 
     <div id="app" class="hidden">
         <header>
-            <h1>Class Cloud ☁️ </h1>
+            <h1>Class Cloud ☁️</h1>
+            <p class="masthead">by Enrique Achacoso</p>
         </header>
 
         <div class="tabs">
@@ -32,22 +33,22 @@
         <input type="text" id="search-input" placeholder="🔍 Look for a Subject or Name...">
 
         <form id="entry-form">
-    <div class="type-selector">
-        <input type="radio" id="type-homework" name="entry-type" value="homework" checked>
-        <label for="type-homework">📝 Homework</label>
-        <input type="radio" id="type-resource" name="entry-type" value="resource">
-       ^ <label for="type-resource">📁 Resource</label>
-    </div>
-
-    <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
-    <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
-    <input type="date" id="deadline-input">
-    <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
-    <button type="submit" id="submit-btn">Add Homework / Ressource</button>
-    <button type="button" id="cancel-edit-btn" class="cancel-btn hidden">Cancel Edit</button>
-</form>
+            <input type="text" id="subject-input" placeholder="Subject (e.g English)" required>
+            <textarea id="hw-input" placeholder="What homework do we have, bro?" required></textarea>
+            <input type="date" id="deadline-input">
+            <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx">
+            <button type="submit" id="submit-btn">Add Homework</button>
+            <button type="button" id="cancel-edit-btn" class="cancel-btn hidden">Cancel Edit</button>
+        </form>
 
         <ul id="hw-list"></ul>
+    </div>
+
+    <div id="detail-modal" class="overlay hidden">
+        <div class="detail-box">
+            <button id="close-detail-btn" class="close-btn" aria-label="Close">✕</button>
+            <div id="detail-content"></div>
+        </div>
     </div>
 
     <script type="module" src="script.js"></script>
