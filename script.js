@@ -191,12 +191,41 @@ tabButtons.forEach((btn) => {
     tabButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     currentFilter = btn.getAttribute("data-filter");
+    updateSubjectOptions();
     renderList();
   });
 });
 
 const searchInput = document.getElementById("search-input");
 let searchTerm = "";
+
+const subjectFilterSelect = document.getElementById("subject-filter");
+let selectedSubject = "all";
+
+subjectFilterSelect.addEventListener("change", () => {
+  selectedSubject = subjectFilterSelect.value;
+  renderList();
+});
+
+function updateSubjectOptions() {
+  const subjects = [...new Set(
+    allEntries
+      .filter((e) => (e.type || "homework") === currentFilter)
+      .map((e) => e.subject)
+  )].sort();
+
+  const current = subjectFilterSelect.value;
+  subjectFilterSelect.innerHTML =
+    '<option value="all">All Subjects</option>' +
+    subjects.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+
+  if (subjects.includes(current)) {
+    subjectFilterSelect.value = current;
+  } else {
+    subjectFilterSelect.value = "all";
+    selectedSubject = "all";
+  }
+}
 
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value.toLowerCase().trim();
@@ -262,6 +291,7 @@ onSnapshot(q, (snapshot) => {
     id: docSnap.id,
     ...docSnap.data()
   }));
+  updateSubjectOptions();
   renderList();
 });
 
