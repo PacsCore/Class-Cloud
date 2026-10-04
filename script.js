@@ -304,7 +304,8 @@ function renderList() {
       searchTerm === "" ||
       entry.subject.toLowerCase().includes(searchTerm) ||
       entry.text.toLowerCase().includes(searchTerm);
-    return matchesType && matchesSearch;
+    const matchesSubject = selectedSubject === "all" || entry.subject === selectedSubject;
+    return matchesType && matchesSearch && matchesSubject;
   });
 
   filtered.sort((a, b) => {
@@ -314,49 +315,67 @@ function renderList() {
     return new Date(a.deadline) - new Date(b.deadline);
   });
 
-  filtered.forEach((data) => {
-    const id = data.id;
-    const files = data.files || [];
+  const groups = {};
+  filtered.forEach((entry) => {
+    const key = entry.subject || "Other";
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(entry);
+  });
 
-    const attachmentsHtml = files.map((file) => {
-      const name = escapeHtml(file.name || "file");
-      const url = (file.url || "").startsWith("https://") ? escapeHtml(file.url) : "";
-      if (isImageFile(file)) {
-        return `<img src="${url}" class="file-thumb" alt="${name}">`;
-      }
-      return `<span class="file-link">📄 ${name}</span>`;
-    }).join("");
+  const subjectKeys = Object.keys(groups).sort();
 
-    const typeBadge = data.type === "resource"
-      ? `<span class="type-badge resource">📁 Resource</span>`
-      : `<span class="type-badge homework">📝 Homework</span>`;
+  subjectKeys.forEach((subjectName) => {
+    if (selectedSubject === "all") {
+      const header = document.createElement("li");
+      header.className = "subject-header";
+      header.textContent = subjectName;
+      hwList.appendChild(header);
+    }
 
-    const deadlineHtml = data.deadline
-      ? `<span class="deadline-badge ${new Date(data.deadline) < new Date() ? "overdue" : ""}">📅 ${new Date(data.deadline).toLocaleDateString("de-AT")}</span>`
-      : "";
+    groups[subjectName].forEach((data) => {
+      const id = data.id;
+      const files = data.files || [];
 
-    const li = document.createElement("li");
-    li.className = "hw-item";
-    li.innerHTML = `
-      <div class="hw-item-top">
-        <div class="hw-item-content">
-          ${typeBadge}
-          ${deadlineHtml}
-          <span class="subject">${escapeHtml(data.subject)}</span>
-          <span>${escapeHtml(data.text)}</span>
-          <span class="date">${data.createdAt ? data.createdAt.toDate().toLocaleString("de-AT") : "just now"}</span>
+      const attachmentsHtml = files.map((file) => {
+        const name = escapeHtml(file.name || "file");
+        const url = (file.url || "").startsWith("https://") ? escapeHtml(file.url) : "";
+        if (isImageFile(file)) {
+          return `<img src="${url}" class="file-thumb" alt="${name}">`;
+        }
+        return `<span class="file-link">📄 ${name}</span>`;
+      }).join("");
+
+      const typeBadge = data.type === "resource"
+        ? `<span class="type-badge resource">📁 Resource</span>`
+        : `<span class="type-badge homework">📝 Homework</span>`;
+
+      const deadlineHtml = data.deadline
+        ? `<span class="deadline-badge ${new Date(data.deadline) < new Date() ? "overdue" : ""}">📅 ${new Date(data.deadline).toLocaleDateString("de-AT")}</span>`
+        : "";
+
+      const li = document.createElement("li");
+      li.className = "hw-item";
+      li.innerHTML = `
+        <div class="hw-item-top">
+          <div class="hw-item-content">
+            ${typeBadge}
+            ${deadlineHtml}
+            <span class="subject">${escapeHtml(data.subject)}</span>
+            <span>${escapeHtml(data.text)}</span>
+            <span class="date">${data.createdAt ? data.createdAt.toDate().toLocaleString("de-AT") : "just now"}</span>
+          </div>
+          <div class="hw-item-actions">
+            <button class="edit-btn" data-id="${id}" aria-label="Edit">✏️</button>
+            <button class="delete-btn" data-id="${id}" aria-label="Delete">🗑️</button>
+          </div>
         </div>
-        <div class="hw-item-actions">
-          <button class="edit-btn" data-id="${id}" aria-label="Edit">✏️</button>
-          <button class="delete-btn" data-id="${id}" aria-label="Delete">🗑️</button>
-        </div>
-      </div>
-      ${attachmentsHtml ? `<div class="file-attachments">${attachmentsHtml}</div>` : ""}
-    `;
+        ${attachmentsHtml ? `<div class="file-attachments">${attachmentsHtml}</div>` : ""}
+      `;
 
-    li.addEventListener("click", () => openDetail(data));
+      li.addEventListener("click", () => openDetail(data));
 
-    hwList.appendChild(li);
+      hwList.appendChild(li);
+    });
   });
 
   document.querySelectorAll(".delete-btn").forEach((btn) => {
