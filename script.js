@@ -392,6 +392,9 @@ function renderList() {
       const id = btn.getAttribute("data-id");
       const data = allEntries.find((entry) => entry.id === id);
 
+      if (![...subjectInput.options].some((o) => o.value === data.subject)) {
+        subjectInput.add(new Option(data.subject, data.subject));
+      }
       subjectInput.value = data.subject;
       hwInput.value = data.text;
       deadlineInput.value = data.deadline || "";
